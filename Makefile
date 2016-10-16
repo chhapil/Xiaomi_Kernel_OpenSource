@@ -404,8 +404,9 @@ KBUILD_CPPFLAGS := -D__KERNEL__
 
 KBUILD_CFLAGS   := -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs \
 		   -fno-strict-aliasing -fno-common \
-		   -Werror-implicit-function-declaration \
+		   -Wno-implicit-function-declaration \
 		   -Wno-format-security \
+		   -Wno-return-local-addr\
 		   -std=gnu89
 
 KBUILD_AFLAGS_KERNEL :=
@@ -676,8 +677,8 @@ endif
 KBUILD_CFLAGS += $(stackp-flag)
 
 ifeq ($(COMPILER),clang)
-KBUILD_CPPFLAGS += $(call cc-option,-Qunused-arguments,)
-KBUILD_CPPFLAGS += $(call cc-option,-Wno-unknown-warning-option,)
+KBUILD_CPPFLAGS += $(call cc-option,-Qunused-arguments)
+KBUILD_CPPFLAGS += $(call cc-option,-Wno-unknown-warning-option)
 KBUILD_CFLAGS += $(call cc-disable-warning, unused-variable)
 KBUILD_CFLAGS += $(call cc-disable-warning, format-invalid-specifier)
 KBUILD_CFLAGS += $(call cc-disable-warning, gnu)
@@ -770,6 +771,13 @@ KBUILD_CFLAGS   += $(call cc-option,-Werror=strict-prototypes)
 
 # Prohibit date/time macros, which would make the build non-deterministic
 KBUILD_CFLAGS   += $(call cc-option,-Werror=date-time)
+
+KBUILD_CFLAGS   += $(call cc-disable-warning, unused-const-variable)
+
+KBUILD_CFLAGS   += $(call cc-disable-warning, misleading-indentation)
+
+KBUILD_CFLAGS   += $(call cc-disable-warning, bool-compare)
+
 
 # use the deterministic mode of AR if available
 KBUILD_ARFLAGS := $(call ar-option,D)
@@ -918,6 +926,7 @@ quiet_cmd_link-vmlinux = LINK    $@
 
 # Include targets which we want to
 # execute if the rest of the kernel build went well.
+#$(info vmlinux-deps is [${vmlinux-deps}])
 vmlinux: scripts/link-vmlinux.sh $(vmlinux-deps) FORCE
 ifdef CONFIG_HEADERS_CHECK
 	$(Q)$(MAKE) -f $(srctree)/Makefile headers_check
